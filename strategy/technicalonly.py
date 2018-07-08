@@ -81,12 +81,12 @@ class TechnicalOnly(Strategy):
         order = self.broker.place_limit_order(OrderSide.BUY, self.symbol, analysis.price, amount,
                                               self.simulation)
         if order:
+            DataManager.persist(self.cycle)
             self.logger.info('{} - BUY ORDER PLACED ({})'.format(self.symbol, order.order_id))
             analysis.order_id = order.order_id
             order.ref_date = analysis.ref_date
             order.cycle_id = self.cycle.cycle_id
             self.cycle.buy_orders.append(order)
-            DataManager.persist(self.cycle)
             DataManager.persist(order)
 
         DataManager.persist(analysis)
