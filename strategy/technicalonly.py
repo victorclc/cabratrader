@@ -23,7 +23,9 @@ class TechnicalOnly(Strategy):
         return self.amount - self.cycle.spent + self.cycle.sold
 
     def on_trade_update(self, trade):
-        if self.cycle.state == CycleState.WATCHING or self.cycle.state == CycleState.BUYING:
+        if self.cycle.state == CycleState.COMPLETED:
+            return
+        elif self.cycle.state == CycleState.WATCHING or self.cycle.state == CycleState.BUYING:
             analysis = self.setup.analysis.trade.watching.analyze(trade, 0.0, self.setup.target, self.setup.max_loss)
         else:
             analysis = self.setup.analysis.trade.holding.analyze(trade, self.cycle.avg_buy_price, self.setup.target,
