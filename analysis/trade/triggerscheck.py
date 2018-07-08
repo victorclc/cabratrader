@@ -10,7 +10,7 @@ class TriggerCheck(TradeAnalysis):
         self.__ref_date = None
 
     def analyze(self, trade, buy_price, target, max_loss):
-        if target > 0 and buy_price > 0 and buy_price * target  <= trade.price:
+        if target > 0 and buy_price > 0 and buy_price * target <= trade.price:
             if buy_price.round(8) == (buy_price * target).round(8):
                 self.suggestion = "HOLD"
             else:

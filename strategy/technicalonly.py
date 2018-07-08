@@ -36,9 +36,6 @@ class TechnicalOnly(Strategy):
         if self.summaries_queue:
             self.on_order_update(self.summaries_queue.popleft())
 
-        if self.cycle.state == CycleState.COMPLETED:
-            self.handle_cycle_completed()
-
     def on_order_update(self, summary):
         for order in self.cycle.orders:
             if order.order_id == summary['order_id']:
@@ -50,7 +47,7 @@ class TechnicalOnly(Strategy):
             self.logger('{} - ORDER NOT FOUND ({}) YET'.format(self.symbol, summary['order_id']))
             self.summaries_queue.append(summary)
 
-        if self.cycle.is_completed():
+        if self.cycle.state == CycleState.COMPLETED:
             self.handle_cycle_completed()
 
     def on_chart_update(self, chart):
@@ -59,6 +56,9 @@ class TechnicalOnly(Strategy):
         else:
             analysis = self.setup.analysis.chart.holding.analyze(chart)
         self.take_action(analysis)
+
+        if self.cycle.state == CycleState.COMPLETED:
+            self.handle_cycle_completed()
 
     def take_action(self, analysis):
         if analysis.suggestion == 'BUY':
