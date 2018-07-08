@@ -15,8 +15,9 @@ class Cycle(PersistableObject):
         self.ZERO = float64(0)
 
     def persistables(self):
+        self.cycle_id = self.cycle_id if self.cycle_id else DataManager.next_sequence('s_cycle_id')
         pers = {
-            'cycle_id': self.cycle_id if self.cycle_id else DataManager.next_sequence('s_cycle_id'),
+            'cycle_id': self.cycle_id,
             'run_id': Run.run_id,
             'symbol': self.symbol,
             'status': 'COMPLETED' if self.is_completed() else 'ACTIVE',
