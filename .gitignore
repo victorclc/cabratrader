@@ -1,0 +1,12 @@
+
+venv/
+
+\.idea/
+
+*.pyc
+
+localconfig/
+
+profanations\.py
+
+*.log
