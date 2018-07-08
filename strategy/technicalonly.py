@@ -43,7 +43,7 @@ class TechnicalOnly(Strategy):
         for order in self.cycle.orders:
             if order.order_id == summary['order_id']:
                 self.logger.info('{} - ORDER UPDATED ({})'.format(self.symbol, order.order_id))
-                order.fill_summary(order)
+                order.fill_summary(summary)
                 DataManager.persist(order)
                 break
         else:
