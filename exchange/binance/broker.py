@@ -16,8 +16,7 @@ class Broker(abc.Broker):
     def __init__(self, key, secret):
         self.binance = Client(key, secret)
         if key and secret:
-            pass
-            # self.account_stalker = AccountStalker(key, secret, self.on_order_update)
+            self.account_stalker = AccountStalker(key, secret, self.on_order_update)
 
         self.account_stalkers = {}
         self.chart_stalkers = {}
@@ -30,8 +29,11 @@ class Broker(abc.Broker):
             self.restrictions[reg['symbol']] = Restrictions(reg)
 
     def on_order_update(self, summary):
-        for cb in self.account_stalkers[summary['symbol']]:
-            cb(summary)
+        symbol = summary['symbol']
+
+        if symbol in self.account_stalkers:
+            for cb in self.account_stalkers[symbol]:
+                cb(summary)
 
     def register_chart_callback(self, symbol, period, zoom, func):
         hash_ = '{}{}{}'.format(symbol, period, zoom)
@@ -75,10 +77,6 @@ class Broker(abc.Broker):
 
         amount = np.float64(amount - amount % step)
         price = np.float64(price - price % tick)
-        # price = (price - (price % self.restrictions[symbol].price_tick).round(self.DEC_PLACES)).round(self.DEC_PLACES)
-        # amount = (amount - (amount % self.restrictions[symbol].step).round(self.DEC_PLACES)).round(self.DEC_PLACES)
-        # price = np.float64('%.8f' % (price - price % self.restrictions[symbol].price_tick))
-        # amount = np.float64('%.8f' % (amount - amount % self.restrictions[symbol].step))
 
         if amount <= self.restrictions[symbol].min_amt or amount * price <= self.restrictions[symbol].min_notional:
             self.logger.debug('Restrictions not satisfied!')

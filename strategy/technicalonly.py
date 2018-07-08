@@ -41,12 +41,12 @@ class TechnicalOnly(Strategy):
     def on_order_update(self, summary):
         for order in self.cycle.orders:
             if order.order_id == summary['order_id']:
-                self.logger('{} - ORDER UPDATED ({})'.format(self.symbol, order.order_id))
+                self.logger.info('{} - ORDER UPDATED ({})'.format(self.symbol, order.order_id))
                 order.fill_summary(order)
                 DataManager.persist(order)
                 break
         else:
-            self.logger('{} - ORDER NOT FOUND ({}) YET'.format(self.symbol, summary['order_id']))
+            self.logger.info('{} - ORDER NOT FOUND ({}) YET'.format(self.symbol, summary['order_id']))
             self.summaries_queue.append(summary)
 
         if self.cycle.state == CycleState.COMPLETED:

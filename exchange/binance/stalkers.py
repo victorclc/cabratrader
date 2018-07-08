@@ -141,7 +141,8 @@ class AccountStalker(object):
             avg_price += np.float64(reg[OrderUpdate.LAST_EXEC_PRICE])
             total += np.float64(reg[OrderUpdate.LAST_EXEC_QTY]) * np.float64(reg[OrderUpdate.LAST_EXEC_PRICE])
             fee += np.float64(reg[OrderUpdate.FEE])
-            fee_asset = reg[OrderUpdate.FEE_ASSET]
+            if not fee_asset:
+                fee_asset = reg[OrderUpdate.FEE_ASSET]
             ref_date = reg[OrderUpdate.EVENT_TIME]
 
             if reg[OrderUpdate.ORDER_STATUS] == 'FILLED' or reg[OrderUpdate.ORDER_STATUS] == 'CANCELED':
@@ -150,7 +151,7 @@ class AccountStalker(object):
         if reg_count > 0:
             avg_price /= reg_count
 
-        if fee_asset == symbol[-len(fee_asset):]:
+        if fee_asset and fee_asset == symbol[-len(fee_asset):]:
             net_total = total - fee
         else:
             # Tax com desconto usando outro MARKET, porem vou subtrair o valor equivalente dessa moeda no market atual
