@@ -70,7 +70,7 @@ class TechnicalOnly(Strategy):
             self.handle_sell_action(analysis)
 
     def handle_buy_action(self, analysis):
-        self.logger.info(analysis.__dict__)
+        self.logger.info('{} - {}'.format(self.symbol, analysis.__dict__))
         if self.cycle.state == CycleState.BUYING:
             for order in self.cycle.open_buy_orders:
                 if analysis.price > order.price:
@@ -94,7 +94,7 @@ class TechnicalOnly(Strategy):
         DataManager.persist(analysis)
 
     def handle_sell_action(self, analysis):
-        self.logger.info(analysis.__dict__)
+        self.logger.info('{} - {}'.format(self.symbol, analysis.__dict__))
         if self.cycle.state == CycleState.BUYING:
             for order in self.cycle.open_buy_orders:
                 self.broker.cancel_order(order)

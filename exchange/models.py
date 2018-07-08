@@ -89,9 +89,6 @@ class Order(PersistableObject):
         return pers
 
     def fill_summary(self, summary):
-        if summary['order_id'] != self.order_id:
-            return
-
         self.avg_price = summary['avg_price']
         self.exec_amount = summary['exec_amount']
         self.gross_total = summary['gross_total']

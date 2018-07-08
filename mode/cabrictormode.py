@@ -24,7 +24,8 @@ class CabrictorMode(Mode):
         for ticker in raw_ticker:
             if ticker['symbol'][-len(self.config.market):] == self.config.market and float(
                     ticker['quoteVolume']) >= self.config.min_volume:
-                symbols.append({'symbol': ticker['symbol'], 'volume': float(ticker['quoteVolume'])})
+                if ticker['symbol'] not in self.config.black_list:
+                    symbols.append({'symbol': ticker['symbol'], 'volume': float(ticker['quoteVolume'])})
 
         symbols = sorted(symbols, key=lambda obj: obj['volume'])
 
@@ -58,3 +59,4 @@ class CabrictorMode(Mode):
             self.working_range = data['working_range']
             self.simulation = data['simulation']
             self.setup = data['setup']
+            self.black_list = [x + self.market for x in data['black_list']]
