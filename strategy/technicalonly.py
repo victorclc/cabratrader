@@ -38,6 +38,7 @@ class TechnicalOnly(Strategy):
         if self.summaries_queue:
             self.on_order_update(self.summaries_queue.popleft())
 
+    @helper.callstalker
     def on_order_update(self, summary):
         for order in self.cycle.orders:
             if order.order_id == summary['order_id']:
