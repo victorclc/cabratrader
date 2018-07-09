@@ -80,3 +80,34 @@ def config2seconds(cfg):
         's': 1
     }
     return int(re.search(r'\d+', cfg).group()) * config[cfg[-1]]
+
+
+def dump(obj):
+    dict_ = dict(obj.__dict__)
+
+    for key, value in obj.__dict__.items():
+        if '__dict__' in dir(value):
+            dict_[key] = dump(value)
+        elif isinstance(value, list):
+            new_list = []
+            for i in value:
+                if '__dict__' in dir(i):
+                    new_list.append(dump(i))
+                else:
+                    new_list.append(i)
+            dict_[key] = new_list
+    return dict_
+
+
+def dump_to_file(obj, file):
+    class SetEncoder(json.JSONEncoder):
+        def default(self, obj):
+            try:
+                ret = json.JSONEncoder.default(self, obj)
+                return ret
+            except:
+                return str(obj)
+
+    with open(file, 'w') as fp:
+        dict_ = dump(obj)
+        json.dump(dict_, fp=fp, indent=2, sort_keys=True, cls=SetEncoder)

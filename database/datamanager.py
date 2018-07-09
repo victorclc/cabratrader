@@ -1,10 +1,10 @@
 from database.postgres.connector import PsqlConnector
 from abstract.database import PersistableObject
-from itertools import cycle
 import common.helper as helper
 
 
 class DataManager(object):
+    logger = helper.load_logger('DataManager')
     config = helper.load_config('datasource.cfg')
     host = config['host']
     db = config['database']
@@ -12,20 +12,48 @@ class DataManager(object):
     pw = config['password']
     prefix = config['table_prefix']
     connector = PsqlConnector(host, db, user, pw, prefix)
-    pool_conn = cycle(
-        [connector.connect(), connector.connect(), connector.connect(), connector.connect(), connector.connect()])
 
     @classmethod
     def persist(cls, obj):
         if not isinstance(obj, PersistableObject):
             raise (Exception, "Not a persistable object")
-        return cls.connector.persist(next(cls.pool_conn), obj)
 
+        conn = None
+        ret = None
+        try:
+            conn = cls.connector.connect()
+            ret = cls.connector.persist(conn, obj)
+        except Exception as ex:
+            cls.logger.error(ex)
+        finally:
+            if conn:
+                conn.close()
+        return ret
 
     @classmethod
     def execute_query(cls, query):
-        return cls.connector.execute_query(next(cls.pool_conn), query)
+        conn = None
+        ret = None
+        try:
+            conn = cls.connector.connect()
+            ret = cls.connector.execute_query(conn, query)
+        except Exception as ex:
+            cls.logger.error(ex)
+        finally:
+            if conn:
+                conn.close()
+        return ret
 
     @classmethod
     def next_sequence(cls, sequence):
-        return cls.connector.next_sequence(next(cls.pool_conn), sequence)
+        conn = None
+        ret = None
+        try:
+            conn = cls.connector.connect()
+            ret = cls.connector.next_sequence(conn, sequence)
+        except Exception as ex:
+            cls.logger.error(ex)
+        finally:
+            if conn:
+                conn.close()
+        return ret
