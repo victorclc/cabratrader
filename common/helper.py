@@ -2,6 +2,7 @@ from pathlib import Path
 import json
 import logging
 import re
+import time
 
 
 def load_config(name):
@@ -96,10 +97,10 @@ def dump(obj):
                 else:
                     new_list.append(i)
             dict_[key] = new_list
-    return dict_
+    return {type(obj).__name__: dict_}
 
 
-def dump_to_file(obj, file):
+def dump_to_file(obj, file=None, extra=None):
     class SetEncoder(json.JSONEncoder):
         def default(self, obj):
             try:
@@ -108,6 +109,10 @@ def dump_to_file(obj, file):
             except:
                 return str(obj)
 
+    if file is None:
+        file = 'dump/{}_{}_dump.json'.format(int(time.time()), type(obj).__name__)
+
     with open(file, 'w') as fp:
         dict_ = dump(obj)
+        dict_['extra'] = extra
         json.dump(dict_, fp=fp, indent=2, sort_keys=True, cls=SetEncoder)

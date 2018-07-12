@@ -20,7 +20,7 @@ class TechnicalOnly(Strategy):
 
     @property
     def available_amt(self):
-        return self.amount - self.cycle.spent + self.cycle.sold
+        return self.amount - self.cycle.on_buy_orders - self.cycle.spent + self.cycle.sold
 
     def on_trade_update(self, trade):
         if self.cycle.state == CycleState.COMPLETED:
@@ -81,17 +81,20 @@ class TechnicalOnly(Strategy):
                 self.broker.cancel_order(order)
 
         amount = self.available_amt / analysis.price
-        order = self.broker.place_limit_order(OrderSide.BUY, self.symbol, analysis.price, amount,
-                                              self.simulation)
-        if order:
-            DataManager.persist(self.cycle)
-            self.logger.info('{} - BUY ORDER PLACED ({})'.format(self.symbol, order.order_id))
-            analysis.order_id = order.order_id
-            order.ref_date = analysis.ref_date
-            order.cycle_id = self.cycle.cycle_id
-            self.cycle.buy_orders.append(order)
-            DataManager.persist(order)
 
+        try:
+            order = self.broker.place_limit_order(OrderSide.BUY, self.symbol, analysis.price, amount,
+                                                  self.simulation)
+            if order:
+                DataManager.persist(self.cycle)
+                self.logger.info('{} - BUY ORDER PLACED ({})'.format(self.symbol, order.order_id))
+                analysis.order_id = order.order_id
+                order.ref_date = analysis.ref_date
+                order.cycle_id = self.cycle.cycle_id
+                self.cycle.buy_orders.append(order)
+                DataManager.persist(order)
+        except Exception as ex:
+            helper.dump_to_file(self, extra=str(ex))
         DataManager.persist(analysis)
 
     def handle_sell_action(self, analysis):
@@ -104,17 +107,19 @@ class TechnicalOnly(Strategy):
                 if analysis.price < order.price:
                     self.broker.cancel_order(order)
 
-        order = self.broker.place_limit_order(OrderSide.SELL, self.symbol, analysis.price,
-                                              self.cycle.bought_amount - self.cycle.sold_amount, self.simulation)
-        if order:
-            self.logger.info('{} - SELL ORDER PLACED ({})'.format(self.symbol, order.order_id))
-            analysis.order_id = order.order_id
-            order.ref_date = analysis.ref_date
-            order.cycle_id = self.cycle.cycle_id
-            self.cycle.sell_orders.append(order)
-            DataManager.persist(self.cycle)
-            DataManager.persist(order)
-
+        try:
+            order = self.broker.place_limit_order(OrderSide.SELL, self.symbol, analysis.price,
+                                                  self.cycle.bought_amount - self.cycle.sold_amount, self.simulation)
+            if order:
+                self.logger.info('{} - SELL ORDER PLACED ({})'.format(self.symbol, order.order_id))
+                analysis.order_id = order.order_id
+                order.ref_date = analysis.ref_date
+                order.cycle_id = self.cycle.cycle_id
+                self.cycle.sell_orders.append(order)
+                DataManager.persist(self.cycle)
+                DataManager.persist(order)
+        except Exception as ex:
+            helper.dump_to_file(self, extra=str(ex))
         DataManager.persist(analysis)
 
     def handle_cycle_completed(self):

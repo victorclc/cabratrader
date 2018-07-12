@@ -107,7 +107,16 @@ class Cycle(PersistableObject):
 
     @property
     def avg_buy_price(self):
+        # todo where exec_Amount > 0
         return (sum(order.avg_price for order in self.buy_orders) / len(self.buy_orders)).round(8)
+    
+    @property
+    def on_buy_orders(self):
+        total = float64(0)
+        for order in self.buy_orders:
+            if order.active:
+                total = order.price * (order.amount - order.exec_amount)
+        return total
 
     def is_completed(self):
         if not self.buy_orders or not self.sell_orders:
