@@ -49,6 +49,7 @@ class Order(PersistableObject):
         self.active = True
         self.ref_date = 0
         self.cycle_id = 0
+        self.run_id = 0
 
         if simulation:
             self.avg_price = np.float64(price)
@@ -70,7 +71,7 @@ class Order(PersistableObject):
         pers = {
             'order_id': self.order_id,
             'cycle_id': self.cycle_id,
-            'run_id': Run.run_id,
+            'run_id': self.run_id,
             'type': self.side,
             'symbol': self.symbol,
             'price': self.price,

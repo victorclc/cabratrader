@@ -60,9 +60,31 @@ class Analysis(ABC):
     def order_id(self, order_id):
         pass
 
+    @property
+    @abstractmethod
+    def symbol(self):
+        pass
+
+    @symbol.setter
+    @abstractmethod
+    def symbol(self, symbol):
+        pass
+
+    @property
+    @abstractmethod
+    def type(self):
+        pass
+
+    @property
+    @abstractmethod
+    def run_id(self):
+        pass
+
     def persistables(self):
         pers = {
-            'run_id': Run.run_id,
+            'run_id': self.run_id,
+            'symbol': self.symbol,
+            'type': self.type,
             'suggestion': self.suggestion,
             'price': self.price,
             'analysis': self.analysis,
@@ -78,8 +100,16 @@ class ChartAnalysis(Analysis, PersistableObject):
     def analyze(self, chart: ChartData):
         pass
 
+    @property
+    def type(self):
+        return 'CHART'
+
 
 class TradeAnalysis(Analysis, PersistableObject):
     @abstractmethod
     def analyze(self, trade: TradeStream, buy_price, target, max_loss):
         pass
+
+    @property
+    def type(self):
+        return 'TRADE'

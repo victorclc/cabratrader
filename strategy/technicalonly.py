@@ -10,11 +10,12 @@ from collections import deque
 class TechnicalOnly(Strategy):
     logger = helper.load_logger('Strategy')
 
-    def __init__(self, broker, symbol, amount, setup, simulation):
+    def __init__(self, broker, symbol, amount, setup, simulation, run_id=None):
         self.logger.info('New Instance: Symbol {} Simulation {}'.format(symbol, str(simulation)))
         super().__init__(broker, symbol, amount, setup, simulation)
+        self.run_id = run_id
         self.ticker = None
-        self.cycle = Cycle(symbol)
+        self.cycle = Cycle(symbol, run_id)
         self.summaries_queue = deque()
         self.lock_buy = False
 
@@ -31,6 +32,11 @@ class TechnicalOnly(Strategy):
             analysis = self.setup.analysis.trade.holding.analyze(trade, self.cycle.avg_buy_price, self.setup.target,
                                                                  self.setup.max_loss)
         self.take_action(analysis)
+
+        if analysis.order_id:
+            analysis.run_id = self.run_id
+            analysis.symbol = self.symbol
+            DataManager.persist(analysis)
 
     def on_ticker_update(self, ticker):
         self.ticker = ticker
@@ -59,6 +65,10 @@ class TechnicalOnly(Strategy):
         else:
             analysis = self.setup.analysis.chart.holding.analyze(chart)
         self.take_action(analysis)
+
+        analysis.run_id = self.run_id
+        analysis.symbol = self.symbol
+        DataManager.persist(analysis)
 
         if self.cycle.state == CycleState.COMPLETED:
             self.handle_cycle_completed()
@@ -91,11 +101,11 @@ class TechnicalOnly(Strategy):
                 analysis.order_id = order.order_id
                 order.ref_date = analysis.ref_date
                 order.cycle_id = self.cycle.cycle_id
+                order.run_id = self.run_id
                 self.cycle.buy_orders.append(order)
                 DataManager.persist(order)
         except Exception as ex:
             helper.dump_to_file(self, extra=str(ex))
-        DataManager.persist(analysis)
 
     def handle_sell_action(self, analysis):
         self.logger.info('{} - {}'.format(self.symbol, analysis.__dict__))
@@ -115,16 +125,16 @@ class TechnicalOnly(Strategy):
                 analysis.order_id = order.order_id
                 order.ref_date = analysis.ref_date
                 order.cycle_id = self.cycle.cycle_id
+                order.run_id = self.run_id
                 self.cycle.sell_orders.append(order)
                 DataManager.persist(self.cycle)
                 DataManager.persist(order)
         except Exception as ex:
             helper.dump_to_file(self, extra=str(ex))
-        DataManager.persist(analysis)
 
     def handle_cycle_completed(self):
         self.logger.info('%s - CYCLE COMPLETED | Profit: %.8f' % (self.symbol, self.cycle.profit.round(8)))
         PushNotification.send('%s - CYCLE COMPLETED | Profit: %.8f' % (self.symbol, self.cycle.profit.round(8)))
         self.amount += self.cycle.profit.round(8)
         DataManager.persist(self.cycle)
-        self.cycle = Cycle(self.symbol)
+        self.cycle = Cycle(self.symbol, self.run_id)

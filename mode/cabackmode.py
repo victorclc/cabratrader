@@ -48,6 +48,7 @@ class CabackMode(Mode):
             symbol = coin + self.market
 
             params = {
+                "run_id": self.run.run_id,
                 "broker": broker,
                 "symbol": symbol,
                 "amount": self.start_amount,

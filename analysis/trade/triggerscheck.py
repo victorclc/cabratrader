@@ -8,8 +8,18 @@ class TriggerCheck(TradeAnalysis):
         self.__analysis = None
         self.__order_id = None
         self.__ref_date = None
+        self.__symbol = None
+        self.__run_id = None
 
     def analyze(self, trade, buy_price, target, max_loss):
+        self.__suggestion = None
+        self.__price = None
+        self.__analysis = None
+        self.__order_id = None
+        self.__ref_date = None
+        self.__symbol = None
+        self.__run_id = None
+
         if target > 0 and buy_price > 0 and buy_price * target <= trade.price:
             if buy_price.round(8) == (buy_price * target).round(8):
                 self.suggestion = "HOLD"
@@ -67,6 +77,23 @@ class TriggerCheck(TradeAnalysis):
     @order_id.setter
     def order_id(self, order_id):
         self.__order_id = order_id
+
+    @property
+    def symbol(self):
+        return self.__symbol
+
+    @symbol.setter
+    def symbol(self, symbol):
+        self.__symbol = symbol
+
+    @property
+    def run_id(self):
+        return self.__run_id
+
+    @run_id.setter
+    def run_id(self, run_id):
+        self.__run_id = run_id
+
 
 
 d_analysis = TriggerCheck()

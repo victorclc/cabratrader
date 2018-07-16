@@ -4,7 +4,7 @@ from core.run import Run
 
 class Mode(ABC):
     def __init__(self):
-        self.init_run()
+        self.run = Run(type(self).__name__)
 
     @abstractmethod
     def start(self):

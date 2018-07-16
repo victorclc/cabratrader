@@ -10,8 +10,20 @@ class Rsi50(ChartAnalysis):
         self.__analysis = None
         self.__order_id = None
         self.__ref_date = None
+        self.__symbol = None
+        self.__run_id = None
+
+    def clean(self):
+        self.__suggestion = None
+        self.__price = None
+        self.__analysis = None
+        self.__order_id = None
+        self.__ref_date = None
+        self.__symbol = None
+        self.__run_id = None
 
     def analyze(self, chart: BinanceChartData):
+        self.clean()
         rsi = chart.indicator_value({"indicator": "rsi"})
         self.suggestion = 'BUY' if rsi[-1] < 50 else 'SELL'
         self.price = chart.close[-1]
@@ -59,6 +71,22 @@ class Rsi50(ChartAnalysis):
     @order_id.setter
     def order_id(self, order_id):
         self.__order_id = order_id
+
+    @property
+    def symbol(self):
+        return self.__symbol
+
+    @symbol.setter
+    def symbol(self, symbol):
+        self.__symbol = symbol
+
+    @property
+    def run_id(self):
+        return self.__run_id
+
+    @run_id.setter
+    def run_id(self, run_id):
+        self.__run_id = run_id
 
 
 d_analysis = Rsi50()

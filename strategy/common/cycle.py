@@ -1,13 +1,14 @@
-from database.datamanager import DataManager
 from abstract.database import PersistableObject
+from database.datamanager import DataManager
 from enum import Enum
 from numpy import float64
-from core.run import Run
 
 
 class Cycle(PersistableObject):
-    def __init__(self, symbol):
+
+    def __init__(self, symbol, run_id=None):
         self.symbol = symbol
+        self.run_id = run_id
         self.buy_orders = []
         self.sell_orders = []
         self.ref_date = 0.0
@@ -18,7 +19,7 @@ class Cycle(PersistableObject):
         self.cycle_id = self.cycle_id if self.cycle_id else DataManager.next_sequence('s_cycle_id')
         pers = {
             'cycle_id': self.cycle_id,
-            'run_id': Run.run_id,
+            'run_id': self.run_id,
             'symbol': self.symbol,
             'status': 'COMPLETED' if self.is_completed() else 'ACTIVE',
             'profit': 0.0 if self.is_completed() is False else self.profit,
@@ -109,7 +110,7 @@ class Cycle(PersistableObject):
     def avg_buy_price(self):
         # todo where exec_Amount > 0
         return (sum(order.avg_price for order in self.buy_orders) / len(self.buy_orders)).round(8)
-    
+
     @property
     def on_buy_orders(self):
         total = float64(0)
