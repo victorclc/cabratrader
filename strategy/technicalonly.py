@@ -31,7 +31,9 @@ class TechnicalOnly(Strategy):
         else:
             analysis = self.setup.analysis.trade.holding.analyze(trade, self.cycle.avg_buy_price, self.setup.target,
                                                                  self.setup.max_loss)
-        self.take_action(analysis)
+
+        if self.cycle.state == CycleState.BOUGHT:
+            self.take_action(analysis)
 
         if analysis.order_id:
             analysis.run_id = self.run_id
