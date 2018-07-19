@@ -82,9 +82,14 @@ class SimTechnical(TechnicalOnly):
         super().on_chart_update(chart)
 
     def check_triggers(self, chart: ChartData):
-        # definir fake TradeStream com maior valor e menor valor e passar pro script de analise
         trade_high = TradeStream()
         trade_high.symbol = self.symbol
         trade_high.price = chart.high[-1]
-        trade_high.ref_date = int(chart.date[-1]/1000)
+        trade_high.ref_date = int(chart.date[-1] / 1000)
         super().on_trade_update(trade_high)
+
+        trade_low = TradeStream()
+        trade_low.symbol = self.symbol
+        trade_low.price = chart.low[-1]
+        trade_low.ref_date = int(chart.date[-1] / 1000)
+        super().on_trade_update(trade_low)

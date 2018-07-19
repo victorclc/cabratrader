@@ -41,7 +41,8 @@ class CabrictorMode(Mode):
                 'symbol': symbol,
                 'amount': self.amount_per_coin,
                 'setup': self.config.setup,
-                'simulation': self.config.simulation
+                'simulation': self.config.simulation,
+                'run_id': self.run.run_id
             }
             self.instances.append(self.spawn_strategy_instance(info))
 

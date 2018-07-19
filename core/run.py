@@ -3,7 +3,6 @@ from abstract.database import PersistableObject
 
 
 class Run(PersistableObject):
-
     def __init__(self, mode=None):
         self.mode = mode
         DataManager.persist(self)
