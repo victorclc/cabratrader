@@ -5,8 +5,10 @@ import requests
 from exchange.binance.broker import Broker
 from exchange.binance.models import BinanceChartData
 from exchange.models import TradeStream, ChartData
+from strategy.fop import Fop
 from strategy.technicalonly import TechnicalOnly
 from external.notification.telegram import PushNotification
+from datetime import time
 
 
 class CabackMode(Mode):
@@ -22,7 +24,8 @@ class CabackMode(Mode):
         self.end_date = self.config['end_date']
         self.start_amount = self.config['start_amount']
         self.setup = self.config['setup']
-
+        self.work_start = time(*[int(x) for x in self.config['work_start'].split(':')])
+        self.work_end = time(*[int(x) for x in self.config['work_end'].split(':')])
         PushNotification.active = False
 
     @staticmethod
@@ -53,7 +56,9 @@ class CabackMode(Mode):
                 "symbol": symbol,
                 "amount": self.start_amount,
                 "setup": self.setup,
-                "simulation": True
+                "simulation": True,
+                "work_start": self.work_start,
+                "work_end": self.work_end
             }
             instance = self.spawn_strategy_instance(params)
             klines = self.client.get_historical_klines(symbol, instance.setup.period, self.begin_date, self.end_date)
@@ -71,7 +76,7 @@ class CabackMode(Mode):
         return SimTechnical(**info)
 
 
-class SimTechnical(TechnicalOnly):
+class SimTechnical(Fop):
     def setup_callbacks(self):
         pass
 

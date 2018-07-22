@@ -1,7 +1,9 @@
 import common.helper as helper
 from abstract.mode import Mode
 from exchange.binance.broker import Broker
+from strategy.fop import Fop
 from strategy.technicalonly import TechnicalOnly
+from datetime import time
 
 
 class CabrictorMode(Mode):
@@ -42,12 +44,14 @@ class CabrictorMode(Mode):
                 'amount': self.amount_per_coin,
                 'setup': self.config.setup,
                 'simulation': self.config.simulation,
-                'run_id': self.run.run_id
+                'run_id': self.run.run_id,
+                'work_start': self.config.work_start,
+                'work_end': self.config.work_end
             }
             self.instances.append(self.spawn_strategy_instance(info))
 
     def spawn_strategy_instance(self, info):
-        return TechnicalOnly(**info)
+        return Fop(**info)
 
     class ConfigWrapper(object):
         def __init__(self, data):
@@ -58,6 +62,8 @@ class CabrictorMode(Mode):
             self.daily_target = data['daily_target']
             self.daily_loss = data['daily_loss']
             self.working_range = data['working_range']
+            self.work_start = time(*[int(x) for x in data['work_start'].split(':')])
+            self.work_end = time(*[int(x) for x in data['work_end'].split(':')])
             self.simulation = data['simulation']
             self.setup = data['setup']
             self.black_list = [x + self.market for x in data['black_list']]

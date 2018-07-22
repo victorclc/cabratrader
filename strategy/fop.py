@@ -5,12 +5,13 @@ from exchange.models import OrderSide
 from strategy.common.cycle import Cycle, CycleState
 from external.notification.telegram import PushNotification
 from collections import deque
+from datetime import datetime, time
 
 
-class TechnicalOnly(Strategy):
+class Fop(Strategy):
     logger = helper.load_logger('Strategy')
 
-    def __init__(self, broker, symbol, amount, setup, simulation, run_id=None):
+    def __init__(self, broker, symbol, amount, setup, simulation, run_id, work_start, work_end):
         self.logger.info('New Instance: Symbol {} Simulation {}'.format(symbol, str(simulation)))
         super().__init__(broker, symbol, amount, setup, simulation)
         self.run_id = run_id
@@ -18,6 +19,9 @@ class TechnicalOnly(Strategy):
         self.cycle = Cycle(symbol, run_id)
         self.summaries_queue = deque()
         self.lock_buy = False
+        self.work_start = work_start
+        self.work_end = work_end
+        self.waiting_for_sell_sugg = False
 
     @property
     def available_amt(self):
@@ -34,6 +38,8 @@ class TechnicalOnly(Strategy):
 
         if self.cycle.state == CycleState.BOUGHT:
             self.take_action(analysis)
+            # if analysis.suggestion == 'SELL' and analysis.analysis == 'STOP_LOSS':
+            #     self.waiting_for_sell_sugg = True
 
         if analysis.order_id:
             analysis.run_id = self.run_id
@@ -66,6 +72,7 @@ class TechnicalOnly(Strategy):
             analysis = self.setup.analysis.chart.watching.analyze(chart)
         else:
             analysis = self.setup.analysis.chart.holding.analyze(chart)
+
         self.take_action(analysis)
 
         analysis.run_id = self.run_id
@@ -83,6 +90,10 @@ class TechnicalOnly(Strategy):
             self.handle_sell_action(analysis)
 
     def handle_buy_action(self, analysis):
+        if not self.in_working_range(
+                datetime.utcfromtimestamp(analysis.ref_date).time()) and not self.waiting_for_sell_sugg:
+            return
+
         self.logger.info('{} - {}'.format(self.symbol, analysis.__dict__))
         if self.cycle.state == CycleState.BUYING:
             for order in self.cycle.open_buy_orders:
@@ -110,6 +121,7 @@ class TechnicalOnly(Strategy):
             helper.dump_to_file(self, extra=str(ex))
 
     def handle_sell_action(self, analysis):
+        self.waiting_for_sell_sugg = False
         self.logger.info('{} - {}'.format(self.symbol, analysis.__dict__))
         if self.cycle.state == CycleState.BUYING:
             for order in self.cycle.open_buy_orders:
@@ -140,3 +152,9 @@ class TechnicalOnly(Strategy):
         self.amount += self.cycle.profit.round(8)
         DataManager.persist(self.cycle)
         self.cycle = Cycle(self.symbol, self.run_id)
+
+    def in_working_range(self, now_time):
+        if self.work_start < self.work_end:
+            return self.work_start <= now_time <= self.work_end
+        else:
+            return now_time >= self.work_start or now_time <= self.work_end
