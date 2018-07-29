@@ -89,6 +89,7 @@ class ChartStalker(object):
 
 
 class AccountStalker(object):
+    logger = helper.load_logger('AccountStalker')
 
     def __init__(self, key, secret, cb=None):
         client = Client(key, secret)
@@ -101,6 +102,8 @@ class AccountStalker(object):
         self.orders = {}
 
     def update_order(self, msg):
+        self.logger.debug(msg)
+
         if msg[OrderUpdate.EVENT_TYPE] != 'executionReport':
             return
 

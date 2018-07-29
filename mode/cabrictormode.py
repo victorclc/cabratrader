@@ -2,7 +2,6 @@ import common.helper as helper
 from abstract.mode import Mode
 from exchange.binance.broker import Broker
 from strategy.fop import Fop
-from strategy.technicalonly import TechnicalOnly
 from datetime import time
 
 
