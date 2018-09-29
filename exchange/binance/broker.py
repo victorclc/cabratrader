@@ -1,12 +1,13 @@
-import abstract.exchange as abc
-import common.helper as helper
+from decimal import Decimal
+
 from binance.client import Client
 
+import exchange.abstract.broker as abc
 from exchange.binance.models import Restrictions
-from exchange.models import *
 from exchange.binance.stalkers import AccountStalker, TradeStalker, TickerStalker, ChartStalker
+from exchange.models import *
+import numpy as np
 from database.datamanager import DataManager
-from decimal import Decimal
 
 
 class Broker(abc.Broker):

@@ -1,0 +1,5 @@
+CYCLES_SYMBOL_RUNID = 'SELECT * FROM c_cycle WHERE symbol = \'{}\' AND run_id = \'{}\''
+ORDERS_ORDERID_LIST = 'SELECT * from c_order where exec_amount > 0 and order_id in \'({})\''
+ORDERS_SYMBOL_RUNID = 'SELECT * FROM c_order WHERE symbol = \'{}\' AND run_id = \'{}\''
+ANALYSIS_SYMBOL_RUNID = 'SELECT * FROM c_analysis WHERE symbol = \'{}\' AND run_id = \'{}\''
+LAST_RUN = 'SELECT * FROM c_run ORDER BY run_id DESC LIMIT 1'

@@ -10,3 +10,5 @@ localconfig/
 profanations\.py
 
 *.log
+
+config/local/

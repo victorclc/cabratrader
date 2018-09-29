@@ -1,4 +1,4 @@
-from abstract.analysis import ChartAnalysis
+from analysis.abstract.analysis import ChartAnalysis
 
 
 class Rsi50(ChartAnalysis):

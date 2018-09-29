@@ -1,4 +1,4 @@
-from abstract.analysis import TradeAnalysis
+from analysis.abstract.analysis import TradeAnalysis
 
 
 class TriggerCheck(TradeAnalysis):
@@ -93,7 +93,6 @@ class TriggerCheck(TradeAnalysis):
     @run_id.setter
     def run_id(self, run_id):
         self.__run_id = run_id
-
 
 
 d_analysis = TriggerCheck()

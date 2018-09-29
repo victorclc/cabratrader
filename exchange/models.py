@@ -1,7 +1,9 @@
 import ta.algorithms as algo
 import numpy as np
-from abstract.database import PersistableObject
-from core.run import Run
+
+from core.runconstants import RunConstants
+from database.abstract.persistable import PersistableObject
+import common.helper as helper
 
 
 class ChartData(object):
@@ -39,6 +41,8 @@ class Ticker(object):
 
 
 class Order(PersistableObject):
+    logger = helper.load_logger('Order')
+
     def __init__(self, side, symbol, price, amount, simulation):
         self.order_id = None
         self.side = side
@@ -49,7 +53,6 @@ class Order(PersistableObject):
         self.active = True
         self.ref_date = 0
         self.cycle_id = 0
-        self.run_id = 0
 
         if simulation:
             self.avg_price = np.float64(price)
@@ -71,7 +74,7 @@ class Order(PersistableObject):
         pers = {
             'order_id': self.order_id,
             'cycle_id': self.cycle_id,
-            'run_id': self.run_id,
+            'run_id': RunConstants.run_id,
             'type': self.side,
             'symbol': self.symbol,
             'price': self.price,
@@ -98,6 +101,7 @@ class Order(PersistableObject):
         self.fee = summary['fee']
         self.active = summary['active']
         self.ref_date = summary['ref_date']
+        self.logger.info('{} - ORDER UPDATED ({})'.format(self.symbol, self.order_id))
 
     def is_buy(self):
         return self.side == OrderSide.BUY

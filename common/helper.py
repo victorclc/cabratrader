@@ -7,7 +7,7 @@ import time
 
 def load_config(name):
     config = 'config/{}'.format(name)
-    local = 'localconfig/{}'.format(name)
+    local = 'config/local/`{}'.format(name)
 
     config_path = Path(config)
     if not config_path.is_file():
@@ -28,13 +28,27 @@ def load_config(name):
 
 
 def load_logger(name):
-    log4p = load_config("log4p.cfg")
-    config = log4p[name]
-    path = config['file']
-    mode = config['mode']
-    level = config['level']
-    fmt = config['format']
-    stream = config['stream']
+    try:
+        log4p = load_config("log4p.cfg")
+        if name in log4p:
+            config = log4p[name]
+            path = config['file']
+            mode = config['mode']
+            level = config['level']
+            fmt = config['format']
+            stream = config['stream']
+        else:
+            path = 'log/{}.log'.format(name)
+            mode = 'a'
+            level = 'INFO'
+            fmt = '[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s'
+            stream = True
+    except FileNotFoundError:
+        path = 'log/{}.log'.format(name)
+        mode = 'a'
+        level = 'INFO'
+        fmt = '[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s'
+        stream = True
 
     logger = logging.getLogger(name)
     formatter = logging.Formatter(fmt)

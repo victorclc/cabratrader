@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 
-from abstract.database import PersistableObject
+from database.abstract.persistable import PersistableObject
 from exchange.models import ChartData, TradeStream
-from core.run import Run
 
 
 class Analysis(ABC):

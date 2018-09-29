@@ -1,17 +1,22 @@
 from database.postgres.connector import PsqlConnector
-from abstract.database import PersistableObject
-import common.helper as helper
+from database.abstract.persistable import PersistableObject
+from common.helper import load_logger
 
 
 class DataManager(object):
-    logger = helper.load_logger('DataManager')
-    config = helper.load_config('datasource.cfg')
-    host = config['host']
-    db = config['database']
-    user = config['user']
-    pw = config['password']
-    prefix = config['table_prefix']
-    connector = PsqlConnector(host, db, user, pw, prefix)
+    logger = load_logger('DataManager')
+    config = None
+    host = None
+    db = None
+    user = None
+    pw = None
+    prefix = None
+    connector = None
+
+    @classmethod
+    def init_connector(cls, connector_name):
+        if connector_name == 'postgres':
+            cls.connector = PsqlConnector(cls.host, cls.db, cls.user, cls.pw, cls.prefix)
 
     @classmethod
     def persist(cls, obj):

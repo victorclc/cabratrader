@@ -1,12 +1,12 @@
-from abstract.database import Connector
-import common.helper as helper
+from database.abstract.connector import Connector
+from common.helper import load_logger
 import psycopg2.extras
 import psycopg2
 import re
 
 
 class PsqlConnector(Connector):
-    logger = helper.load_logger('DataConnector')
+    logger = load_logger('DataConnector')
 
     def connect(self):
         return psycopg2.connect(host=self.host, database=self.db, user=self.user, password=self.pw)

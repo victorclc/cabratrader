@@ -1,6 +1,4 @@
 import talib
-import numpy as np
-import pandas as pd
 
 
 # Volatility Indicator Functions

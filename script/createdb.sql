@@ -6,6 +6,7 @@
 -- *********************** TABLES ********************************
 -- ***************************************************************
 
+drop table c_run cascade ;
 create table if not exists c_run (
   run_id serial primary key,
   mode text,
@@ -13,6 +14,7 @@ create table if not exists c_run (
   update_date timestamp
 );
 
+drop table c_cycle cascade;
 create table if not exists c_cycle (
   cycle_id integer primary key,
   run_id integer references c_run (run_id),
@@ -26,6 +28,7 @@ create table if not exists c_cycle (
   update_date timestamp
 );
 
+drop table c_order cascade;
 create table if not exists c_order (
   order_id integer,
   run_id integer references c_run (run_id),
@@ -51,6 +54,8 @@ create table if not exists c_order (
 create table if not exists c_analysis (
   id serial primary key,
   run_id integer references  c_run (run_id),
+  symbol text,
+  type text,
   order_id integer,
   suggestion text,
   analysis text,

@@ -1,18 +1,13 @@
-import common.helper as helper
-from abstract.mode import Mode
-from exchange.binance.broker import Broker
-from strategy.fop import Fop
+from core.mode import Mode
 from datetime import time
+import common.helper as helper
+from exchange.binance.broker import Broker
 
 
 class CabrictorMode(Mode):
-    """
-        Roda N moedas baseadas no volume
-    """
-
     def __init__(self):
         super().__init__()
-        self.config = self.ConfigWrapper(helper.load_config('mode/cabrictor.cfg'))
+        self.config = self.ConfigWrapper(helper.load_config('cabrictor.cfg'))
         ex_config = helper.load_config('binance.cfg')
         self.broker = Broker(ex_config['key'], ex_config['secret'])
         self.instances = []
@@ -43,14 +38,10 @@ class CabrictorMode(Mode):
                 'amount': self.amount_per_coin,
                 'setup': self.config.setup,
                 'simulation': self.config.simulation,
-                'run_id': self.run.run_id,
                 'work_start': self.config.work_start,
                 'work_end': self.config.work_end
             }
-            self.instances.append(self.spawn_strategy_instance(info))
-
-    def spawn_strategy_instance(self, info):
-        return Fop(**info)
+            self.instances.append(self.spawn_strategy_instance(self.config.strategy, info))
 
     class ConfigWrapper(object):
         def __init__(self, data):
@@ -60,9 +51,9 @@ class CabrictorMode(Mode):
             self.min_volume = data['min_volume']
             self.daily_target = data['daily_target']
             self.daily_loss = data['daily_loss']
-            self.working_range = data['working_range']
-            self.work_start = time(*[int(x) for x in data['work_start'].split(':')])
-            self.work_end = time(*[int(x) for x in data['work_end'].split(':')])
+            self.work_start = time(*[int(x) for x in data['work_start'].split(':')]) if data['work_start'] else None
+            self.work_end = time(*[int(x) for x in data['work_end'].split(':')]) if data['work_end'] else None
             self.simulation = data['simulation']
             self.setup = data['setup']
             self.black_list = [x + self.market for x in data['black_list']]
+            self.strategy = data['strategy']

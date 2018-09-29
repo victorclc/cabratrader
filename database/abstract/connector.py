@@ -36,9 +36,3 @@ class Connector(ABC):
     @abstractmethod
     def next_sequence(self, conn, sequence):
         pass
-
-
-class PersistableObject(ABC):
-    @abstractmethod
-    def persistables(self):
-        pass
