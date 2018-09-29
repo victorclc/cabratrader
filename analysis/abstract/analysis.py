@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from core.runconstants import RunConstants
 from database.abstract.persistable import PersistableObject
 from exchange.models import ChartData, TradeStream
 
@@ -81,7 +82,7 @@ class Analysis(ABC):
 
     def persistables(self):
         pers = {
-            'run_id': self.run_id,
+            'run_id': RunConstants.run_id,
             'symbol': self.symbol,
             'type': self.type,
             'suggestion': self.suggestion,
