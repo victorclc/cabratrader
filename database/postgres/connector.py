@@ -34,13 +34,18 @@ class PsqlConnector(Connector):
 
     def discovery_query_for_object(self, obj):
         pers = obj.persistables()
-        if '__key__' not in pers or pers[pers['__key__']] is None:
+        if '__key__' not in pers:
+            return None
+
+        if type(pers['__key__']) == list:
+            for key in pers['__key__']:
+                if pers[key] is None:
+                    return None
+        elif pers[pers['__key__']] is None:
             return None
 
         table = self.__table_name(obj) if '__table__' not in pers else pers['__table__']
-
-        key = pers['__key__']
-        query = "SELECT * FROM %s WHERE %s = '%s'" % (table, key, pers[key])
+        query = "SELECT * FROM %s WHERE %s" % (table, self.__where_clause(pers))
         self.logger.debug('Discovery query: ' + query)
         return query
 
@@ -81,7 +86,7 @@ class PsqlConnector(Connector):
             else:
                 query += "%s='%s'," % (key, str(value))
 
-        query = query[:-1] + " WHERE %s='%s'" % (pk, pers[pk])
+        query = query[:-1] + " WHERE " + self.__where_clause(pers)
         self.logger.debug("Update query: " + query)
 
         return query
@@ -116,3 +121,18 @@ class PsqlConnector(Connector):
                 table += '_'
             table += ch.lower()
         return table
+
+    @staticmethod
+    def __where_clause(pers):
+        clause = ""
+        keys = pers['__key__']
+
+        if type(keys) == list:
+            for key in keys:
+                clause = clause + "%s = '%s' AND " % (key, pers[key])
+            else:
+                clause = clause[:-5]
+        else:
+            clause = "%s = '%s'" % (keys, pers[keys])
+
+        return clause

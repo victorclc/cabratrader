@@ -23,6 +23,17 @@ class BinanceChartData(ChartData):
         self.quote_volume = np.float64(quote_volume)
         self.weighted_average = np.float64(weighted_average)
 
+    def __getitem__(self, item):
+        chart = {
+            'high': self.high[item],
+            'low': self.low[item],
+            'open': self.open[item],
+            'close': self.close[item],
+            'volume': self.volume[item],
+            'quote_volume': self.quote_volume[item]
+        }
+        return chart
+
 
 class BinanceTicker(Ticker):
     @classmethod

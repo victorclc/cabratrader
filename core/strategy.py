@@ -21,9 +21,12 @@ class Strategy(ABC):
         self.amount = float64(amount)
         self.setup = self.SetupWrapper(setup)
         self.simulation = simulation
+        self.instance = Instance(symbol, amount)
 
         if RunConstants.mode != 'CabackMode':
             self.setup_callbacks()
+
+        DataManager.persist(self.instance)
 
     def setup_callbacks(self, account=True, chart=True, ticker=True, trade=True):
         if chart:
@@ -319,7 +322,11 @@ class CycleStrategy(Strategy, ABC):
     def handle_cycle_completed(self):
         self.logger.info('%s - CYCLE COMPLETED | Profit: %.8f' % (self.symbol, self.cycle.profit.round(8)))
         self.amount += self.cycle.profit.round(8)
+        self.instance.amount = self.amount
+
+        DataManager.persist(self.instance)
         DataManager.persist(self.cycle)
+
         self.cycle = Cycle(self.symbol)
 
     def take_action(self, analysis):
@@ -328,3 +335,21 @@ class CycleStrategy(Strategy, ABC):
                 self.handle_buy_action(analysis)
         elif analysis.suggestion == 'SELL':
             self.handle_sell_action(analysis)
+
+
+class Instance(PersistableObject):
+    def __init__(self, symbol, start_amount):
+        self.symbol = symbol
+        self.start_amount = start_amount
+        self.amount = start_amount
+
+    def persistables(self):
+        pers = {
+            'run_id': RunConstants.run_id,
+            'symbol': self.symbol,
+            'start_amount': self.start_amount,
+            'end_amount': self.amount,
+            'perc': float('%.4f' % ((self.amount - self.start_amount) * 100 / self.start_amount)),
+            '__key__': ['run_id', 'symbol']
+        }
+        return pers
