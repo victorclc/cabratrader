@@ -40,7 +40,7 @@ class BBands(ChartAnalysis):
 
         self.price = chart.close[-1]
         self.ref_date = int(chart.date[-1]/1000)
-        self.analysis = 'bbands: ({}, {}, {})'.format(upper[-1], middle[-1], lower[-1])
+        self.analysis = 'bbands: {}, {}, {}'.format(upper[-1], middle[-1], lower[-1])
 
         return self
 
