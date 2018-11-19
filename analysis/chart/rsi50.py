@@ -25,6 +25,7 @@ class Rsi50(ChartAnalysis):
     def analyze(self, chart: BinanceChartData):
         self.clean()
         rsi = chart.indicator_value({"indicator": "rsi"})
+
         self.suggestion = 'BUY' if rsi[-1] < 50 else 'SELL'
         self.price = chart.close[-1]
         self.ref_date = int(chart.date[-1]/1000)
