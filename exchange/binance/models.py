@@ -5,6 +5,7 @@ from exchange.models import ChartData, Ticker, TradeStream
 class BinanceChartData(ChartData):
     def __init__(self, data):
         date, high, low, open, close, volume, quote_volume, weighted_average = [], [], [], [], [], [], [], []
+        self.__index = 0
         for candle in data:
             date.append(candle[0])
             high.append(candle[2])
@@ -30,9 +31,21 @@ class BinanceChartData(ChartData):
             'open': self.open[item],
             'close': self.close[item],
             'volume': self.volume[item],
-            'quote_volume': self.quote_volume[item]
+            'quote_volume': self.quote_volume[item],
+            'date': self.date[item]
         }
         return chart
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        self.__index += 1
+        try:
+            return self.__getitem__(self.__index - 1)
+        except IndexError:
+            self.__index = 0
+            raise StopIteration  # Done iterating.
 
 
 class BinanceTicker(Ticker):

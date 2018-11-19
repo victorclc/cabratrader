@@ -162,6 +162,8 @@ def DMI(high=None, low=None, close=None, timeperiod_adx=14, timeperiod_di=14, **
     di_minus = MINUS_DI(high, low, close, timeperiod_di)
 
     return adx, di_plus, di_minus
+
+
 # Super Trend
 # method to calculate SuperTrend indicator
 # input each record and get upper band, lower band, final upper band,
@@ -216,7 +218,7 @@ def ST(high, low, close, period=10, multiplier=3, **kwargs):
 
     _uband = (high + low) / 2 + multiplier * _atr
     _lband = (high + low) / 2 - multiplier * _atr
-    
+
     for i in range(0, len(close)):
         if i < period:
             _uband[i] = 0.0
@@ -224,25 +226,31 @@ def ST(high, low, close, period=10, multiplier=3, **kwargs):
             _finaluband.append(0.0)
             _finallband.append(0.0)
         else:
-            _finaluband.append(_uband[i]if _uband[i] < _finaluband[i-1] or close[i-1] > _finaluband[i-1]else _finaluband[i-1])
-            _finallband.append(_lband[i]if _lband[i] > _finallband[i-1] or close[i-1] < _finallband[i-1]else _finallband[i-1])
+            _finaluband.append(
+                _uband[i] if _uband[i] < _finaluband[i - 1] or close[i - 1] > _finaluband[i - 1] else _finaluband[
+                    i - 1])
+            _finallband.append(
+                _lband[i] if _lband[i] > _finallband[i - 1] or close[i - 1] < _finallband[i - 1] else _finallband[
+                    i - 1])
     # Set the Supertrend value
     for i in range(0, len(close)):
         if i < period:
             _supert.append(0.0)
         else:
             _supert.append((_finaluband[i]
-                if((_supert[i-1]==_finaluband[i-1])and(close[i] <= _finaluband[i]))
-                else (_finallband[i]
-                    if((_supert[i-1]==_finaluband[i-1])and(close[i]>_finaluband[i]))
-                    else (_finallband[i]
-                        if((_supert[i-1]==_finallband[i-1])and(close[i]>=_finallband[i]))
-                        else (_finaluband[i]
-                            if((_supert[i-1]==_finallband[i-1])and(close[i]<_finallband[i]))
-                            else 0.0
-                          )))))
+                            if ((_supert[i - 1] == _finaluband[i - 1]) and (close[i] <= _finaluband[i]))
+                            else (_finallband[i]
+                                  if ((_supert[i - 1] == _finaluband[i - 1]) and (close[i] > _finaluband[i]))
+                                  else (_finallband[i]
+                                        if ((_supert[i - 1] == _finallband[i - 1]) and (close[i] >= _finallband[i]))
+                                        else (_finaluband[i]
+                                              if (
+                        (_supert[i - 1] == _finallband[i - 1]) and (close[i] < _finallband[i]))
+                                              else 0.0
+                                              )))))
 
     return _uband, _lband, _finaluband, _finallband, _supert
+
 
 # # cabra pressure stalker indicator
 # def CPSI(text=None, depth=None, near=1, mid=1.5, far=3.0, **kwargs):
@@ -276,6 +284,9 @@ def ST(high, low, close, period=10, multiplier=3, **kwargs):
 
 # Volume Indicator Functions
 
-def OBV(close, volume):
+def OBV(close, volume, **kwargs):
     return talib.OBV(close, volume)
 
+
+def BBANDS(close, matype=talib.MA_Type.T3, **kwargs):
+    return talib.BBANDS(close, matype)
