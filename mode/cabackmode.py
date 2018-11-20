@@ -30,8 +30,10 @@ class CabackMode(Mode):
         tickers = requests.get("https://api.binance.com/api/v1/ticker/24hr").json()
         coins = []
 
+        # TODO CRIAR CONFIG PARA VALOR MINIMO DA MOEDA
         for ticker in tickers:
-            if ticker['symbol'][-len(market):] == market and float(ticker['quoteVolume']) >= volume:
+            if ticker['symbol'][-len(market):] == market and float(ticker['quoteVolume']) >= volume and float(
+                    ticker['lastPrice']) / 0.0001 > 1:
                 coins.append(ticker['symbol'][0:-len(market)])
         return coins
 
