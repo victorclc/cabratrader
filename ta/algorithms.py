@@ -1,4 +1,5 @@
 import talib
+import numpy
 
 
 # Volatility Indicator Functions
@@ -289,4 +290,5 @@ def OBV(close, volume, **kwargs):
 
 
 def BBANDS(close, matype=talib.MA_Type.T3, **kwargs):
-    return talib.BBANDS(close, matype)
+    upper, middle, lower = talib.BBANDS(numpy.float64([x * 1000 for x in close]), matype)
+    return [x / 1000 for x in upper], [x / 1000 for x in middle], [x / 1000 for x in lower]
