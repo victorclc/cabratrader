@@ -19,7 +19,7 @@ class CabrictorMode(Mode):
 
         for ticker in raw_ticker:
             if ticker['symbol'][-len(self.config.market):] == self.config.market and float(
-                    ticker['quoteVolume']) >= self.config.min_volume:
+                    ticker['quoteVolume']) >= self.config.min_volume and float(ticker['lastPrice']) / 0.0001 > 1:
                 if ticker['symbol'] not in self.config.black_list:
                     symbols.append({'symbol': ticker['symbol'], 'volume': float(ticker['quoteVolume'])})
 
