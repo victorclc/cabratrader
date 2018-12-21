@@ -293,7 +293,7 @@ class CycleStrategy(Strategy, ABC):
                 self.cycle.buy_orders.append(order)
                 DataManager.persist(order)
         except Exception as ex:
-            helper.dump_to_file(self, extra=str(ex))
+            helper.dump_to_file(self, extra=str(ex), prefix=self.symbol)
 
     def handle_sell_action(self, analysis):
         self.logger.info('{} - {}'.format(self.symbol, analysis.__dict__))
@@ -317,7 +317,7 @@ class CycleStrategy(Strategy, ABC):
                 DataManager.persist(self.cycle)
                 DataManager.persist(order)
         except Exception as ex:
-            helper.dump_to_file(self, extra=str(ex))
+            helper.dump_to_file(self, extra=str(ex), prefix=self.symbol)
 
     def handle_cycle_completed(self):
         self.logger.info('%s - CYCLE COMPLETED | Profit: %.8f' % (self.symbol, self.cycle.profit.round(8)))

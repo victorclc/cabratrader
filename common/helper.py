@@ -114,7 +114,7 @@ def dump(obj):
     return {type(obj).__name__: dict_}
 
 
-def dump_to_file(obj, file=None, extra=None):
+def dump_to_file(obj, file=None, extra=None, prefix=''):
     class SetEncoder(json.JSONEncoder):
         def default(self, obj):
             try:
@@ -124,7 +124,7 @@ def dump_to_file(obj, file=None, extra=None):
                 return str(obj)
 
     if file is None:
-        file = 'dump/{}_{}_dump.json'.format(int(time.time()), type(obj).__name__)
+        file = 'dump/{}_{}_{}_dump.json'.format(prefix, int(time.time()), type(obj).__name__)
 
     with open(file, 'w') as fp:
         dict_ = dump(obj)
