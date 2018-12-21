@@ -120,7 +120,7 @@ def ROCR100(close=None, timeperiod=10, **kwargs):
 
 
 def RSI(close=None, signalperiod=14, **kwargs):
-    return talib.RSI(close, signalperiod)
+    return talib.RSI(close * 1000, signalperiod) / 1000
 
 
 def STOCH(high=None, low=None, close=None, fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3,
@@ -246,7 +246,7 @@ def ST(high, low, close, period=10, multiplier=3, **kwargs):
                                         if ((_supert[i - 1] == _finallband[i - 1]) and (close[i] >= _finallband[i]))
                                         else (_finaluband[i]
                                               if (
-                        (_supert[i - 1] == _finallband[i - 1]) and (close[i] < _finallband[i]))
+                    (_supert[i - 1] == _finallband[i - 1]) and (close[i] < _finallband[i]))
                                               else 0.0
                                               )))))
 
@@ -290,5 +290,5 @@ def OBV(close, volume, **kwargs):
 
 
 def BBANDS(close, matype=talib.MA_Type.T3, **kwargs):
-    upper, middle, lower = talib.BBANDS(numpy.float64([x * 1000 for x in close]), matype)
-    return [x / 1000 for x in upper], [x / 1000 for x in middle], [x / 1000 for x in lower]
+    upper, middle, lower = talib.BBANDS(close * 1000, matype)
+    return upper / 1000, middle / 1000, lower / 1000
