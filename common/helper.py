@@ -64,9 +64,10 @@ def load_logger(name):
 
 
 def load_analyser(relative_path):
-    with open('analysis/{}'.format(relative_path)) as fp:
-        exec(fp.read())
-        return locals()['d_analysis']
+    if relative_path:
+        with open('analysis/{}'.format(relative_path)) as fp:
+            exec(fp.read())
+            return locals()['d_analysis']
 
 
 class Constants(object):

@@ -4,6 +4,7 @@ from core.runconstants import RunConstants
 from database.datamanager import DataManager
 from database.abstract.persistable import PersistableObject
 import common.helper as helper
+from strategy.impatient import Impatient
 from strategy.technicalonly import TechnicalOnly
 
 
@@ -44,6 +45,8 @@ class Mode(ABC):
     def spawn_strategy_instance(self, strategy, info):
         if strategy == 'techinicalonly':
             return TechnicalOnly(**info)
+        elif strategy == 'impatient':
+            return Impatient(**info)
 
     @classmethod
     def init_run(cls):

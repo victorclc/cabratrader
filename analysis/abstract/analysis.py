@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from core.runconstants import RunConstants
+from core.strategy import Cycle
 from database.abstract.persistable import PersistableObject
 from exchange.models import ChartData, TradeStream
 
@@ -113,3 +114,13 @@ class TradeAnalysis(Analysis, PersistableObject):
     @property
     def type(self):
         return 'TRADE'
+
+
+class TimeAnalysis(Analysis, PersistableObject):
+    @abstractmethod
+    def analyze(self, cycle: Cycle, chart: ChartData):
+        pass
+
+    @property
+    def type(self):
+        return 'TIME'

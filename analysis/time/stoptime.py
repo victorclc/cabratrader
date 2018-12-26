@@ -1,9 +1,7 @@
-from analysis.abstract.analysis import ChartAnalysis
+from analysis.abstract.analysis import TimeAnalysis
 
 
-class BBands(ChartAnalysis):
-    from exchange.binance.models import BinanceChartData
-
+class StopTime(TimeAnalysis):
     def __init__(self):
         self.__suggestion = None
         self.__price = None
@@ -13,7 +11,7 @@ class BBands(ChartAnalysis):
         self.__symbol = None
         self.__run_id = None
 
-    def clean(self):
+    def analyze(self, cycle, chart):
         self.__suggestion = None
         self.__price = None
         self.__analysis = None
@@ -22,25 +20,20 @@ class BBands(ChartAnalysis):
         self.__symbol = None
         self.__run_id = None
 
-    def analyze(self, chart: BinanceChartData):
-        self.clean()
-        upper, middle, lower = chart.indicator_value({"indicator": "bbands"})
+        from core.strategy import CycleState
+        if cycle.state == CycleState.BOUGHT:
+            buy_time = None
+            for order in cycle.buy_orders:
+                if order.exec_amount > 0.0:
+                    buy_time = order.ref_date
+            now = chart.date[-1] / 1000
 
-        # print("BB", lower[-1])
-        # print(chart.close[-1])
-
-        # print(upper[-1], middle[-1], lower[-1])
-        if lower[-1] >= chart.close[-1]:
-            self.suggestion = 'BUY'
-        elif upper[-1] <= chart.close[-1]:
-            self.suggestion = 'SELL'
-        else:
-            # print('HOLD')
-            self.suggestion = 'HOLD'
-
-        self.price = chart.close[-1]
-        self.ref_date = int(chart.date[-1]/1000)
-        self.analysis = 'bbands: {}, {}, {}'.format(upper[-1], middle[-1], lower[-1])
+            if now - buy_time >= 10800:
+                print(now, buy_time)
+                self.suggestion = "SELL"
+                self.analysis = "STOP_TIME"
+                self.price = chart.close[-1]
+                self.ref_date = now
 
         return self
 
@@ -101,4 +94,4 @@ class BBands(ChartAnalysis):
         self.__run_id = run_id
 
 
-d_analysis = BBands()
+d_analysis = StopTime()

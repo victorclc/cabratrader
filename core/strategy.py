@@ -68,6 +68,7 @@ class Strategy(ABC):
             def __init__(self, analysis):
                 self.chart = self.ScriptWrapper(analysis['chart'])
                 self.trade = self.ScriptWrapper(analysis['trade'])
+                self.time = self.ScriptWrapper(analysis['time'])
 
             class ScriptWrapper:
                 def __init__(self, chart):
