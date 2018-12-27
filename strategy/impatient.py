@@ -29,7 +29,7 @@ class Impatient(CycleStrategy):
                 time_analysis = self.setup.analysis.time.holding.analyze(self.cycle, chart)
                 if time_analysis.suggestion:
                     analysis = time_analysis
-                    self.lock_buy = True
+
 
         self.take_action(analysis)
 
