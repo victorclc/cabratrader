@@ -154,7 +154,7 @@ def WILLR(high=None, low=None, close=None, timeperiod=14, **kwargs):
 # Overlap Sudies Functions
 
 def SAR(high, low, acceleration=0.02, maximum=0.02, **kwargs):
-    return talib.SAR(high, low, acceleration, maximum)
+    return talib.SAR(high * 1000, low * 1000, acceleration, maximum) / 1000
 
 
 def DMI(high=None, low=None, close=None, timeperiod_adx=14, timeperiod_di=14, **kwargs):

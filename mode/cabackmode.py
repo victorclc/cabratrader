@@ -1,3 +1,5 @@
+from time import sleep
+
 from core.mode import Mode
 import common.helper as helper
 from binance.client import Client
@@ -6,6 +8,7 @@ from exchange.binance.broker import Broker
 from exchange.binance.models import BinanceChartData
 from exchange.models import TradeStream, ChartData
 from datetime import time
+import threading
 
 
 class CabackMode(Mode):
@@ -24,6 +27,7 @@ class CabackMode(Mode):
         self.strategy = data['strategy']
         self.work_start = time(*[int(x) for x in data['work_start'].split(':')]) if data['work_start'] else None
         self.work_end = time(*[int(x) for x in data['work_end'].split(':')]) if data['work_end'] else None
+        self._active_threads = 0
 
     @staticmethod
     def get_all_coins(market, volume):
@@ -32,8 +36,7 @@ class CabackMode(Mode):
 
         # TODO CRIAR CONFIG PARA VALOR MINIMO DA MOEDA
         for ticker in tickers:
-            if ticker['symbol'][-len(market):] == market and float(ticker['quoteVolume']) >= volume and float(
-                    ticker['lastPrice']) / 0.0001 > 1 > float(ticker['lastPrice']) / 0.01:
+            if ticker['symbol'][-len(market):] == market and float(ticker['quoteVolume']) >= volume:
                 coins.append(ticker['symbol'][0:-len(market)])
         return coins
 
@@ -44,9 +47,7 @@ class CabackMode(Mode):
             self.coins = self.get_all_coins(self.market, self.min_volume)
 
         self.logger.info("StartAmount: " + str(self.start_amount))
-
         for coin in self.coins:
-            index = 0
             symbol = coin + self.market
 
             params = {
@@ -62,13 +63,22 @@ class CabackMode(Mode):
             klines = self.client.get_historical_klines(symbol, instance.setup.period, self.begin_date, self.end_date)
             zoom = int(helper.config2seconds(instance.setup.zoom) / helper.config2seconds(instance.setup.period))
 
-            while index + zoom <= len(klines):
-                chart = BinanceChartData(klines[index:zoom + index])
-                instance.on_chart_update(chart)
-                self.check_triggers(symbol, chart, instance)
-                index += 1
+            t = threading.Thread(target=self._run, args=[symbol, instance, klines, zoom])
+            while self._active_threads >= 10:
+                sleep(5)
+            t.start()
 
-            self.logger.info("Currency: %s (%s)" % (symbol, str(instance.amount)))
+    def _run(self, symbol, instance, klines, zoom):
+        self._active_threads += 1
+        index = 0
+        while index + zoom <= len(klines):
+            chart = BinanceChartData(klines[index:zoom + index])
+            self.check_triggers(symbol, chart, instance)
+            instance.on_chart_update(chart)
+            index += 1
+
+        self.logger.info("Currency: %s (%s)" % (symbol, str(instance.amount)))
+        self._active_threads -= 1
 
     @staticmethod
     def check_triggers(symbol, chart: ChartData, instance):

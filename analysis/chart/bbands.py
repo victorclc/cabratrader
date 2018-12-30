@@ -35,8 +35,11 @@ class BBands(ChartAnalysis):
         elif upper[-1] <= chart.close[-1]:
             self.suggestion = 'SELL'
         else:
-            # print('HOLD')
-            self.suggestion = 'HOLD'
+            sar = chart.indicator_value({"indicator": "sar"})
+            if sar[-1] > chart.close[-1]:
+                self.suggestion = 'SELL'
+            else:
+                self.suggestion = 'HOLD'
 
         self.price = chart.close[-1]
         self.ref_date = int(chart.date[-1]/1000)
