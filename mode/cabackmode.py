@@ -61,20 +61,40 @@ class CabackMode(Mode):
             }
             instance = self.spawn_strategy_instance(self.strategy, params)
             klines = self.client.get_historical_klines(symbol, instance.setup.period, self.begin_date, self.end_date)
+            trade_klines = self.client.get_historical_klines(symbol, '1m', self.begin_date, self.end_date)
             zoom = int(helper.config2seconds(instance.setup.zoom) / helper.config2seconds(instance.setup.period))
 
-            t = threading.Thread(target=self._run, args=[symbol, instance, klines, zoom])
-            while self._active_threads >= 10:
-                sleep(5)
-            t.start()
+            # t = threading.Thread(target=self._run, args=[symbol, instance, klines, zoom, trade_klines])
+            # while self._active_threads >= 5:
+            #    sleep(5)
+            # t.start()
 
-    def _run(self, symbol, instance, klines, zoom):
+            self._run(symbol, instance, klines, zoom, trade_klines)
+
+    def _run(self, symbol, instance, klines, zoom, trade_klines):
         self._active_threads += 1
         index = 0
+
+        for i in range(len(trade_klines)):
+            if trade_klines[i][0] == klines[zoom-1][0]:
+                interval_index = i + 1
+                break
+        else:
+            self.logger.error("KLines invalidos")
+            return
+
+        interval = int(helper.config2seconds(instance.setup.period) / 60)
+
         while index + zoom <= len(klines):
             chart = BinanceChartData(klines[index:zoom + index])
-            self.check_triggers(symbol, chart, instance)
+            interval_klines = trade_klines[interval_index:interval_index + interval - 1]
+            interval_index += interval
+
             instance.on_chart_update(chart)
+
+            for i in range(len(interval_klines)):
+                interval_chart = BinanceChartData([interval_klines[i]])
+                self.check_triggers(symbol, interval_chart, instance)
             index += 1
 
         self.logger.info("Currency: %s (%s)" % (symbol, str(instance.amount)))
